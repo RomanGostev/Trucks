@@ -1,0 +1,55 @@
+function CreatNewSheet() {
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var newSheet = sheet.copyTo(SpreadsheetApp.getActiveSpreadsheet());
+  newSheet.activate(); // активация нового листа
+  var newName = "Новое название";
+  newSheet.setName(newName);
+
+  // удаляем ячейки с нулем:
+
+  var ПоследняяСтрока = newSheet.getLastRow();
+  var dataRange = newSheet.getRange("P6:P" + ПоследняяСтрока); // Указываем столбец, начиная с ячейки E6 и до конца
+  var values = dataRange.getValues();
+  var numRows = values.length;
+  for (var i = numRows - 1; i >= 0; i--) {
+    if (values[i][0] === "") {
+      newSheet.deleteRow(i + 6); // Удаляем строку на листе, учитывая смещение от E6
+    }
+  }
+
+  // переименовываем лист в текущий месяц и год:
+
+  var monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+  var currentDate = new Date();
+  var monthYearName = monthNames[currentDate.getMonth()] + " " + currentDate.getFullYear();
+  newSheet.setName(monthYearName);
+
+  // делаем название месяца на листе Диапазоны:
+
+  var sheetName = newSheet.getName();
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var ДиапазоныЛист = spreadsheet.getSheetByName("Диапазоны");
+  
+    // делаем ячейку для счета месяцев в столбце G на листе Диапазоны:
+
+        // находим строку по которой нужно найти заполненную ячейку справа:
+
+          var столбец = 7; // по столбцу G
+          var последняяСтрока = ДиапазоныЛист.getLastRow();
+          var диапазон = ДиапазоныЛист.getRange(1, столбец, последняяСтрока, 1);
+          var значения = диапазон.getValues();
+          for (var i = последняяСтрока - 1; i >= 0; i--) 
+          {
+            if (значения[i][0] != "") {
+              var последняяЯчейка = диапазон.getCell(i + 1, 1);
+              var ПоследняяСтрокаG = i + 1;
+              break;
+            }
+          }
+
+    var ПоследняяСтрокаДляМесяцев = ДиапазоныЛист.getRange((ПоследняяСтрокаG + 1), 7);
+    var Месяц = ДиапазоныЛист.getRange((ПоследняяСтрокаG + 1), 2);
+    Месяц.setValue(sheetName);
+    ПоследняяСтрокаДляМесяцев.setValue("1");
+}
